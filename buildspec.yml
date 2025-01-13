@@ -1,0 +1,111 @@
+version: 0.2
+
+env:
+  variables:
+    STACK_NAME: "serverless-file-share"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      # Force npm to use legacy peer deps
+      - npm config set legacy-peer-deps true
+      
+      # Install root dependencies
+      - npm install --legacy-peer-deps
+      
+      # Install backend (CDK) dependencies and fix versions
+      - echo "Installing backend dependencies..."
+      - cd cdk
+      - npm install --legacy-peer-deps
+      - npm install esbuild@~0.21.0
+      - npm uninstall -g aws-cdk
+      - npm install -g aws-cdk@2.91.0
+      - npm install aws-cdk-lib@2.91.0
+      - cd ..
+      
+      # Install frontend dependencies
+      - echo "Installing frontend dependencies..."
+      - cd ui
+      - npm install --legacy-peer-deps
+      - cd ..
+
+  pre_build:
+    commands:
+      # Fix permissions for node_modules binaries
+      - chmod -R +x ./cdk/node_modules/.bin/
+      - chmod -R +x ./ui/node_modules/.bin/
+
+      # Backend pre-build
+      - echo "Running backend pre-build checks..."
+      - cd cdk
+      - npm run lint -- --fix --max-warnings 2000 || true
+      - cd ..
+      
+      # Frontend pre-build
+      - echo "Running frontend pre-build checks..."
+      - cd ui
+      - npm run lint -- --fix --max-warnings 2000 || true
+      - cd ..
+
+  build:
+    commands:
+      # Deploy backend first
+      - echo "Building and deploying backend..."
+      - cd cdk
+      - npm run build
+      - npm run test
+      - cdk deploy --require-approval never --force
+      
+      # Get deployment outputs for frontend configuration
+      - |
+        WEBSITE_BUCKET=$(aws cloudformation describe-stacks \
+          --stack-name ${STACK_NAME} \
+          --query 'Stacks[0].Outputs[?OutputKey==`WebsiteS3BucketURI`].OutputValue' \
+          --output text | cut -d'/' -f3)
+      - |
+        CLOUDFRONT_ID=$(aws cloudformation describe-stacks \
+          --stack-name ${STACK_NAME} \
+          --query 'Stacks[0].Outputs[?OutputKey==`WebsiteDistributionId`].OutputValue' \
+          --output text)
+      - cd ..
+      
+      # Build and deploy frontend
+      - echo "Building and deploying frontend..."
+      - cd ui
+      # Get config from SSM Parameter Store
+      - |
+        aws ssm get-parameter \
+          --name $(aws cloudformation describe-stacks \
+          --stack-name serverless-file-share \
+          --query "Stacks[0].Outputs[?OutputKey=='WebConfig'].OutputValue" \
+          --output text) \
+          --query "Parameter.Value" \
+          --output text > public/config.js
+      - npm run build
+      
+      # Deploy to S3 and invalidate CloudFront
+      - aws s3 sync build/ s3://${WEBSITE_BUCKET} --delete
+      - aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_ID} --paths "/*"
+      - cd ..
+
+  post_build:
+    commands:
+      - echo "Build completed successfully!"
+      - echo "Website URL - https://${CLOUDFRONT_ID}.cloudfront.net"
+
+artifacts:
+  files:
+    # Include all built files
+    - cdk/cdk.out/**/*
+    - cdk/build/**/*
+    - ui/build/**/*
+    - buildspec.yml
+  base-directory: .
+
+cache:
+  paths:
+    - 'cdk/node_modules/**/*'
+    - 'ui/node_modules/**/*'
+    - '/root/.npm/**/*'

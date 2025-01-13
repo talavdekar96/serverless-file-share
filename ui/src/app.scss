@@ -1,0 +1,72 @@
+// Update text links to have normal link style
+.text-link {
+  a {
+    font-weight: 500 !important;
+    -webkit-font-smoothing: auto !important;
+
+    &:hover {
+      text-decoration: underline !important;
+    }
+  }
+}
+
+// Add some padding under recipient array header
+#recipients-description {
+  margin-bottom: 10px;
+}
+
+// Update styles for Amplify login screen to be similar to Northstar theme
+:root,
+[data-amplify-theme] {
+  --amplify-components-button-primary-background-color: #539fe5;
+  --amplify-components-button-primary-hover-background-color: #89bdee;
+  --amplify-components-button-primary-active-background-color: #75a8d9;
+  --amplify-components-button-link-color: #539fe5;
+  --amplify-components-tabs-item-active-color: #539fe5;
+  --amplify-components-tabs-item-active-border-color: #539fe5;
+  --amplify-components-tabs-item-focus-color: #539fe5;
+  --amplify-components-fieldcontrol-border-radius: 20px;
+  --amplify-components-authenticator-modal-background-color: #101b2a;
+  --amplify-components-fieldcontrol-font-size: 14px;
+  --amplify-components-button-font-size: 16px;
+}
+
+[data-amplify-router] {
+  border-radius: 20px;
+}
+
+.amplify-tabs {
+  border-radius: 20px 20px 0 0;
+
+  > button:first-child {
+    border-radius: 20px 0 0;
+  }
+
+  > button:last-child {
+    border-radius: 0 20px 0 0;
+  }
+}
+
+.amplify-label {
+  font-size: 14px;
+}
+
+// Apply css fix for wizard header
+body[path^="/share"] {
+  main {
+    background: linear-gradient(#000716 0, #000716 268px, transparent 268px);
+  }
+}
+
+// shift wizard steps up a few pixels
+[data-analytics-funnel-step] {
+  margin-top: -16px;
+  background-color: #fff;
+  border-radius: 8px 8px 0 0;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  h5 {
+    margin-top: -12px !important;
+  }
+}
