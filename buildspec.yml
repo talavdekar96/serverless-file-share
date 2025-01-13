@@ -49,7 +49,13 @@ phases:
 
   build:
     commands:
-      # Deploy backend first
+      # Build frontend first
+      - echo "Building frontend..."
+      - cd ui
+      - npm run build
+      - cd ..
+
+      # Deploy backend
       - echo "Building and deploying backend..."
       - cd cdk
       - npm run build
@@ -70,8 +76,8 @@ phases:
           --output text)
       - cd ..
       
-      # Build and deploy frontend
-      - echo "Building and deploying frontend..."
+      # Deploy frontend
+      - echo "Deploying frontend..."
       - cd ui
       # Get config from SSM Parameter Store
       - |
@@ -82,9 +88,6 @@ phases:
           --output text) \
           --query "Parameter.Value" \
           --output text > public/config.js
-      - npm run build
-      
-      # Deploy to S3 and invalidate CloudFront
       - aws s3 sync build/ s3://${WEBSITE_BUCKET} --delete
       - aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_ID} --paths "/*"
       - cd ..
