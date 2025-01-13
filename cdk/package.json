@@ -6,7 +6,7 @@
     "app": "bin/app.js"
   },
   "scripts": {
-    "test": "jest",
+    "test": "node --max-old-space-size=4096 ./node_modules/.bin/jest",
     "build": "dotenv cdk synth",
     "deploy": "dotenv cdk deploy",
     "build:prod": "dotenv -e .env.prod cdk synth",
