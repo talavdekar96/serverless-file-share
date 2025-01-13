@@ -9,6 +9,9 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
+      # Install global dependencies
+      - npm install -g aws-cdk
+      
       # Install root dependencies
       - npm install
        
@@ -49,7 +52,7 @@ phases:
       - cd cdk
       - npm run build
       - npm run test
-      - cdk deploy --require-approval never --force
+      - npx cdk deploy --require-approval never --force
       
       # Get deployment outputs for frontend configuration
       - |
