@@ -9,26 +9,19 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
-      # Force npm to use legacy peer deps
-      - npm config set legacy-peer-deps true
-      
       # Install root dependencies
-      - npm install --legacy-peer-deps
-      
-      # Install backend (CDK) dependencies and fix versions
+      - npm install
+       
+      # Install backend (CDK) dependencies
       - echo "Installing backend dependencies..."
       - cd cdk
-      - npm install --legacy-peer-deps
-      - npm install esbuild@~0.21.0
-      - npm uninstall -g aws-cdk
-      - npm install -g aws-cdk@2.91.0
-      - npm install aws-cdk-lib@2.91.0
+      - npm install
       - cd ..
-      
+       
       # Install frontend dependencies
       - echo "Installing frontend dependencies..."
       - cd ui
-      - npm install --legacy-peer-deps
+      - npm install
       - cd ..
 
   pre_build:
