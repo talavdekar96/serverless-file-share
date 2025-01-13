@@ -27,7 +27,7 @@ phases:
       - rm -rf node_modules
       - rm -rf build
       - npm install
-      - npm install --save-dev @types/react@18.2.0 @types/react-dom@18.2.0
+      - npm install --save-dev @types/react@18.2.0 @types/react-dom@18.2.0 react-refresh@^0.14.0
       - mkdir -p src/types
       - cd ..
 
