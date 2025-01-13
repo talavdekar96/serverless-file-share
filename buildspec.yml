@@ -24,6 +24,8 @@ phases:
       # Install frontend dependencies
       - echo "Installing frontend dependencies..."
       - cd ui
+      - rm -rf node_modules
+      - rm -rf build
       - npm install
       - cd ..
 
