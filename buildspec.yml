@@ -51,7 +51,20 @@ phases:
 
   build:
     commands:
-      # Build frontend first
+      # Get backend configuration first
+      - echo "Getting backend configuration..."
+      - cd ui
+      - |
+        aws ssm get-parameter \
+          --name $(aws cloudformation describe-stacks \
+          --stack-name serverless-file-share \
+          --query "Stacks[0].Outputs[?OutputKey=='WebConfig'].OutputValue" \
+          --output text) \
+          --query "Parameter.Value" \
+          --output text > public/config.js
+      - cd ..
+
+      # Build frontend with configuration
       - echo "Building frontend..."
       - cd ui
       - npm run build
@@ -65,7 +78,7 @@ phases:
       - npx cdk bootstrap
       - npx cdk deploy --require-approval never --force
       
-      # Get deployment outputs for frontend configuration
+      # Get deployment outputs for frontend deployment
       - |
         WEBSITE_BUCKET=$(aws cloudformation describe-stacks \
           --stack-name ${STACK_NAME} \
@@ -81,16 +94,6 @@ phases:
       # Deploy frontend
       - echo "Deploying frontend..."
       - cd ui
-      - echo "Running config..."
-      # Get config from SSM Parameter Store
-      - |
-        aws ssm get-parameter \
-          --name $(aws cloudformation describe-stacks \
-          --stack-name serverless-file-share \
-          --query "Stacks[0].Outputs[?OutputKey=='WebConfig'].OutputValue" \
-          --output text) \
-          --query "Parameter.Value" \
-          --output text > public/config.js
       - aws s3 sync build/ s3://${WEBSITE_BUCKET} --delete
       - aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_ID} --paths "/*"
       - cd ..
