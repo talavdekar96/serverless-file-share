@@ -81,6 +81,9 @@ phases:
       # Deploy frontend
       - echo "Deploying frontend..."
       - cd ui
+      - echo "Running config..."
+      - npm run config
+
       # Get config from SSM Parameter Store
       - |
         aws ssm get-parameter \
