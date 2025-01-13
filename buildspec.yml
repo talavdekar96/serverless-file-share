@@ -52,6 +52,7 @@ phases:
       - cd cdk
       - npm run build
       - npm run test
+      - npx cdk bootstrap
       - npx cdk deploy --require-approval never --force
       
       # Get deployment outputs for frontend configuration
