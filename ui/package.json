@@ -11,7 +11,7 @@
     "lint:fix": "eslint . --fix && stylelint . --fix",
     "lint:js": "eslint .",
     "lint:css": "stylelint .",
-    "config": "FOR /F \"tokens=*\" %i IN ('aws cloudformation describe-stacks --stack-name serverless-file-share --query \"Stacks[0].Outputs[?OutputKey=='WebConfig'].OutputValue\" --output text') DO aws ssm get-parameter --name %i --query \"Parameter.Value\" --output text > public/config.js",
+    "config": "aws cloudformation describe-stacks --stack-name serverless-file-share --query \"Stacks[0].Outputs[?OutputKey=='WebConfig'].OutputValue\" --output text | xargs -I {} aws ssm get-parameter --name {} --query \"Parameter.Value\" --output text > public/config.js",
     "clean": "rm -rf ./node_modules && rm -rf ./build && rm -rf ./public/config.js"
   },
   "dependencies": {
@@ -48,8 +48,7 @@
     "stylelint": "^15.10.2",
     "stylelint-config-sass-guidelines": "^10.0.0",
     "stylelint-config-standard": "^33.0.0",
-    "typescript": "^5.1.6",
-    "react-refresh": "^0.14.0"
+    "typescript": "^5.1.6"
   },
   "overrides": {
     "react-scripts": {
