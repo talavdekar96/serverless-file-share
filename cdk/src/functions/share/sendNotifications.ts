@@ -16,7 +16,8 @@ const lambdaHandler = async (
   for (const recipient of recipients) {
     if (!recipient.notify) continue;
 
-    const downloadLink = `${API_URL}/download?fileId=${fileId}&ownerId=${user.id}`;
+    // const downloadLink = `${API_URL}/download?fileId=${fileId}&ownerId=${user.id}`;
+    const downloadLink = "https://d3nnye8oytn3kc.cloudfront.net";
     console.log("Download link", downloadLink);
     
     const htmlBody = `
